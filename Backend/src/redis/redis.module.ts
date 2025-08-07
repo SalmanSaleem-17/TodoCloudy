@@ -9,10 +9,18 @@ import { RedisService } from './redis.service';
     ConfigModule,
     NestRedisModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'single',
-        url: `redis://${configService.get('REDIS_HOST')}:${configService.get('REDIS_PORT')}`,
-      }),
+       useFactory: (configService: ConfigService) => { 
+        const host = configService.get<string>('REDIS_HOST');
+        const port = configService.get<number>('REDIS_PORT');
+
+        console.log('REDIS_HOST:', host);
+        console.log('REDIS_PORT:', port);
+
+        return {
+          type: 'single',
+          url: `redis://${host}:${port}`,
+        };
+      },
       inject: [ConfigService],
     }),
   ],
