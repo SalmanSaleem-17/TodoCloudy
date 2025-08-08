@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Task } from '../tasks/task.entity';
 import { Role } from '../common/constants/roles.enum';
+import {IsEmail } from 'class-validator';
 
 @Entity()
 export class User {
@@ -18,6 +19,7 @@ export class User {
   name: string;
 
   @Column({ unique: true })
+  @IsEmail()
   email: string;
 
   @Column()

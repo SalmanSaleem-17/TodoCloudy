@@ -18,7 +18,7 @@ export const getTypeOrmConfig = (
   password: configService.get('POSTGRES_PASSWORD'),
   database: configService.get('POSTGRES_DB'),
   entities: [path.join(__dirname, '/../../**/*.entity{.ts,.js}')],
-  synchronize: configService.get('NODE_ENV') !== 'production',
+  synchronize: configService.get('NODE_ENV') !== 'development',
   logging: configService.get('NODE_ENV') === 'development',
   ssl:
     configService.get('POSTGRES_SSL') === 'true'
@@ -38,7 +38,7 @@ export const AppDataSource = new DataSource({
   migrations: [path.join(__dirname, '/migrations/*{.ts,.js}')],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
-  ssl: process.env.POSTGRES_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  ssl: process.env.POSTGRES_SSL === 'false' ? { rejectUnauthorized: false } : false,
 });
 
 

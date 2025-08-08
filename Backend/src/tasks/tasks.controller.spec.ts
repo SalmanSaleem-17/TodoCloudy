@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TasksController } from '../../tasks/tasks.controller';
-import { TasksService } from '../../tasks/tasks.service';
-import { CreateTaskDto } from '../../tasks/dtos/create-task.dto';
-import { UpdateTaskDto } from '../../tasks/dtos/update-task.dto';
-import { AssignTaskDto } from '../../tasks/dtos/assign-task.dto';
+import { TasksController } from '../tasks/tasks.controller';
+import { TasksService } from '../tasks/tasks.service';
+import { CreateTaskDto } from '../tasks/dtos/create-task.dto';
+import { UpdateTaskDto } from '../tasks/dtos/update-task.dto';
+import { AssignTaskDto } from '../tasks/dtos/assign-task.dto';
+import { JwtPayload } from '../shared/interfaces/jwt-payload.interface';
+import { Role } from 'src/common/constants/roles.enum';
 
 describe('TasksController', () => {
   let controller: TasksController;
@@ -43,14 +45,19 @@ describe('TasksController', () => {
         description: 'Test Desc',
       };
       const mockTask = { id: '1', ...createTaskDto };
-      const mockUser = { sub: '1' };
-
+      const mockUser: JwtPayload = {
+        sub: '1',
+        email: 'test@example.com',
+        role: Role.USER,
+      };
       jest.spyOn(tasksService, 'create').mockResolvedValue(mockTask as any);
 
       const result = await controller.create(createTaskDto, mockUser);
       expect(result).toEqual(mockTask);
+      expect(tasksService.create).toHaveBeenCalledWith(
+        createTaskDto,
+        mockUser.sub,
+      );
     });
   });
-
-  // Add more test cases for other methods
 });

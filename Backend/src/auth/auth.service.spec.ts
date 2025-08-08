@@ -1,9 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../../auth/auth.service';
-import { UsersService } from '../../users/users.service';
+import { AuthService } from './auth.service';
+import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../../users/user.entity';
-import { comparePassword } from '../../common/utils/compare-password';
+import { User } from '../users/user.entity';
+import { comparePassword } from '../common/utils/compare-password';
+
+// Mock the password comparison util
+jest.mock('../common/utils/compare-password', () => ({
+  comparePassword: jest.fn(),
+}));
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -43,17 +48,32 @@ describe('AuthService', () => {
       const mockUser = {
         id: '1',
         email: 'test@example.com',
-        password: await comparePassword('password', 'hashedpassword'),
+        password: 'hashedpassword',
       } as User;
 
-      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValue(mockUser);
+      (usersService.findOneByEmail as jest.Mock).mockResolvedValue(mockUser);
+      (comparePassword as jest.Mock).mockResolvedValue(true); // Simulate match
 
       const result = await service.validateUser('test@example.com', 'password');
       expect(result).toEqual(mockUser);
     });
 
-    it('should return null if credentials are invalid', async () => {
-      jest.spyOn(usersService, 'findOneByEmail').mockResolvedValue(null);
+    it('should return null if user not found', async () => {
+      (usersService.findOneByEmail as jest.Mock).mockResolvedValue(null);
+
+      const result = await service.validateUser('test@example.com', 'wrong');
+      expect(result).toBeNull();
+    });
+
+    it('should return null if password does not match', async () => {
+      const mockUser = {
+        id: '1',
+        email: 'test@example.com',
+        password: 'hashedpassword',
+      } as User;
+
+      (usersService.findOneByEmail as jest.Mock).mockResolvedValue(mockUser);
+      (comparePassword as jest.Mock).mockResolvedValue(false); // Simulate mismatch
 
       const result = await service.validateUser('test@example.com', 'wrong');
       expect(result).toBeNull();
@@ -65,7 +85,7 @@ describe('AuthService', () => {
       const mockUser = { id: '1', email: 'test@example.com', role: 'user' };
       const mockToken = 'mockToken';
 
-      jest.spyOn(jwtService, 'sign').mockReturnValue(mockToken);
+      (jwtService.sign as jest.Mock).mockReturnValue(mockToken);
 
       const result = await service.login(mockUser as User);
       expect(result).toEqual({ access_token: mockToken });

@@ -1,25 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TasksService } from './tasks.service';
-
-describe('TasksService', () => {
-  let service: TasksService;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [TasksService],
-    }).compile();
-
-    service = module.get<TasksService>(TasksService);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();import { Test, TestingModule } from '@nestjs/testing';
-import { TasksService } from '../../tasks/tasks.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Task } from '../../tasks/task.entity';
+import { Task } from './task.entity'; 
 import { Repository } from 'typeorm';
-import { UsersService } from '../../users/users.service';
-import { EventsGateway } from '../../events/events.gateway';
+import { UsersService } from '../users/users.service';
+import { EventsGateway } from '../events/events.gateway';
 
 describe('TasksService', () => {
   let service: TasksService;
@@ -83,9 +68,5 @@ describe('TasksService', () => {
       expect(result).toEqual(mockTask);
       expect(eventsGateway.notifyTaskCreated).toHaveBeenCalledWith(mockTask);
     });
-  });
-
-  // Add more test cases for other methods
-});
   });
 });
